@@ -1,0 +1,328 @@
+{
+  "name": "social media automation FNF",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyHour"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "17LcALBUyt-WFjvA2t-XC72SwOEquaQPgn386gmxyrD8",
+          "mode": "list",
+          "cachedResultName": "social media workflow",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17LcALBUyt-WFjvA2t-XC72SwOEquaQPgn386gmxyrD8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17LcALBUyt-WFjvA2t-XC72SwOEquaQPgn386gmxyrD8/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1392,
+        -192
+      ],
+      "id": "6f99072d-f0b2-4d07-bf76-e4000995e68b",
+      "name": "Google Sheets Trigger",
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "qDwvQxBd3rX27Kz1",
+          "name": "Google Sheets Trigger account 5296"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        -1088,
+        32
+      ],
+      "id": "65133bfc-c5cd-4604-afaf-4f9544cb7855",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "VwxCVmlyMPrsOfvD",
+          "name": "Google Gemini(PaLM) Api account 13727"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        -752,
+        32
+      ],
+      "id": "a4f8532c-d5a0-4197-84ae-a242a1bee984",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "VwxCVmlyMPrsOfvD",
+          "name": "Google Gemini(PaLM) Api account 13727"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "person": "wZhntlUnTr",
+        "text": "={{ $('create post').item.json.text }}",
+        "shareMediaCategory": "IMAGE",
+        "binaryPropertyName": "image",
+        "additionalFields": {
+          "visibility": "PUBLIC"
+        }
+      },
+      "type": "n8n-nodes-base.linkedIn",
+      "typeVersion": 1,
+      "position": [
+        -144,
+        224
+      ],
+      "id": "bcdd9be5-80ef-4113-bcf8-16c3b41a8def",
+      "name": "Create a post",
+      "credentials": {
+        "linkedInOAuth2Api": {
+          "id": "AM9yQe4BcHNlVPsv",
+          "name": "LinkedIn account 3860"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=: \"You are a social media strategist with expertise in content adaptation\"\n\n  User: \"Analyze this article and create a summary that:\n  1. Captures the 3 most important insights\n  2. Includes any actionable advice or tips\n  3. Maintains the original tone and perspective\n  4. Highlights implications for the target audience\n  5. Stays under 200 words for social media adaptation\n  \n  Articl:{{ $('Google Sheets Trigger').item.json.newslinks }}",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        -1168,
+        -192
+      ],
+      "id": "5e4b628b-1340-4dc7-ba27-603714035899",
+      "name": "Summarize article"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Assume the role of an industry expert and draft a LinkedIn post discussing key points from a news article relevant to artificial intelligence. The post should provide insightful analysis, connect with current industry trends, and encourage professional engagement or discussion. Highlight any notable implications for the industry. Since LinkedIn supports detailed posts, ensure it is informative and structured. Include a professional call to action. Here's a summary of the article:  {{ $json.text }}",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        -816,
+        -192
+      ],
+      "id": "c3eba2af-4cf8-4406-a24b-0bfd95cad85d",
+      "name": "create post"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://router.huggingface.co/hf-inference/models/stabilityai/stable-diffusion-3-medium-diffusers\t",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "huggingFaceApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "image/png"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "inputs",
+              "value": "={{ $json.text }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file",
+              "outputPropertyName": "image"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -112,
+        -192
+      ],
+      "id": "704da48f-ce2f-42b7-9ddc-2f8bfd959535",
+      "name": "HTTP Request",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "yZeLtEguiFFhAL5O",
+          "name": "pavan"
+        },
+        "huggingFaceApi": {
+          "id": "NYseMLN7fFqhTrLf",
+          "name": "Hugging Face account 12"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Create a concise image prompt (max 50 words) for a LinkedIn post visual based on this AI article summary. Focus on modern, professional imagery with technology/business themes. Use clear descriptive terms suitable for AI image generation. {{ $json.text }}",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        -464,
+        -192
+      ],
+      "id": "45b101f5-c607-48b0-bc38-e7e6da9d2614",
+      "name": "generate image prompt"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.1-flash-lite-preview",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        -400,
+        32
+      ],
+      "id": "b00ae07b-e9e7-4293-96d1-77d9769994f5",
+      "name": "Google Gemini Chat Model2",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "VwxCVmlyMPrsOfvD",
+          "name": "Google Gemini(PaLM) Api account 13727"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Sheets Trigger": {
+      "main": [
+        [
+          {
+            "node": "Summarize article",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Summarize article",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "create post",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarize article": {
+      "main": [
+        [
+          {
+            "node": "create post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "create post": {
+      "main": [
+        [
+          {
+            "node": "generate image prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "generate image prompt": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "generate image prompt",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Create a post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "4395476f-6f72-43ca-ac4d-3a510b3398c9",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "969257b09ad2942bbaff2e2288304f4969030574d109cdeca05bf11f630884df"
+  },
+  "id": "lR7vaDB2OquzltK7",
+  "tags": []
+}
